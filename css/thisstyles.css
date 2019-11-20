@@ -1,0 +1,464 @@
+ body,
+ html {
+   height: 100%;
+   background: #333;
+   color: #FFF;
+   margin: 0;
+ }
+
+ .container {
+   align-items: center;
+   justify-content: center;
+   margin: 10px;
+   text-align: center;
+   justify-content: space-between;
+ }
+
+ .grid-container {
+   display: grid;
+   grid-column-gap: 10%;
+   grid-template-columns: 1fr 2fr 1fr;
+ }
+
+ .grid-item {
+   background-color: #DAF7A6;
+   border-radius: 25px;
+   padding: 10px;
+   text-align: center;
+   color: navy;
+ }
+
+
+ .rcorners {
+   /*border-radius: 25px;*/
+   padding: 35px;
+ }
+
+ .rcornerswhite {
+    border-radius: 5px;
+    background:  #333;
+    padding: 10px;
+    width: 50%;
+    border: 1px solid #282828;
+    color: white;
+ }
+
+ .textcolor {
+   color: navy;
+ }
+
+ .txtdeco {
+   text-decoration: none;
+ }
+
+ .inlinebtn {
+   white-space: pre;
+   color: #686363;
+   border-radius: 3px;
+   border-width: thin;
+   background-color: #E4E4E4
+ }
+
+ .qbtn {
+   font-size: medium;
+   position: fixed;
+   right: 0%;
+   top: 0%;
+ }
+
+ pre {
+   overflow-x: auto;
+   white-space: pre-wrap;
+   white-space: -moz-pre-wrap;
+   white-space: -pre-wrap;
+   white-space: -o-pre-wrap;
+   word-wrap: break-word;
+ }
+
+
+ .btn {
+  background: #dae4eb;
+  background-image: linear-gradient(to bottom, #4a4a4a, #2f2e2e);
+  /*border-radius: 28px;*/
+  color: #FFF;
+  font-size: 12px;
+  padding: 10px 20px 10px 20px;
+  border: solid #282828 2px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #dbdbdb;
+  background-image: linear-gradient(to bottom, #222, #000);
+  text-decoration: none;
+}
+
+ .loader {
+   margin: 0 auto;
+   border: 8px solid #f3f3f3;
+   border-radius: 50%;
+   border-top: 8px solid green;
+   border-bottom: 8px solid navy;
+   width: 40px;
+   height: 40px;
+   -webkit-animation: spin 2s linear infinite;
+   animation: spin 2s linear infinite;
+ }
+
+ @-webkit-keyframes spin {
+   0% {
+     -webkit-transform: rotate(0deg);
+   }
+
+   100% {
+     -webkit-transform: rotate(360deg);
+   }
+ }
+
+ @keyframes spin {
+   0% {
+     transform: rotate(0deg);
+   }
+
+   100% {
+     transform: rotate(360deg);
+   }
+ }
+
+ .slidecontainer {
+   width: 50%;
+   /* Width of the outside container */
+   margin: 0 auto;
+ }
+
+ /* The slider itself */
+ .slider {
+   -webkit-appearance: none;
+   /* Override default CSS styles */
+   appearance: none;
+   width: 100%;
+   /* Full-width */
+   height: 25px;
+   /* Specified height */
+   background: #d3d3d3;
+   /* Grey background */
+   outline: none;
+   /* Remove outline */
+   opacity: 0.7;
+   /* Set transparency (for mouse-over effects on hover) */
+   -webkit-transition: .2s;
+   /* 0.2 seconds transition on hover */
+   transition: opacity .2s;
+ }
+
+ /* Mouse-over effects */
+ .slider:hover {
+   opacity: 1;
+   /* Fully shown on mouse-over */
+ }
+
+ /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+ .slider::-webkit-slider-thumb {
+   -webkit-appearance: none;
+   /* Override default look */
+   appearance: none;
+   width: 25px;
+   /* Set a specific slider handle width */
+   height: 25px;
+   /* Slider handle height */
+   background: #4CAF50;
+   /* Green background */
+   cursor: pointer;
+   /* Cursor on hover */
+ }
+
+ .slider::-moz-range-thumb {
+   width: 25px;
+   /* Set a specific slider handle width */
+   height: 25px;
+   /* Slider handle height */
+   background: #4CAF50;
+   /* Green background */
+   cursor: pointer;
+   /* Cursor on hover */
+ }
+
+ .btn-group button {
+   background-color: #d3d3d3;
+   /* Green background */
+   border: 1px solid #d3d3d3;
+   /* Green border */
+   color: white;
+   /* White text */
+   padding: 5px;
+   /* Some padding */
+   cursor: pointer;
+   /* Pointer/hand icon */
+   /*width:75px;*/
+   float: none;
+   /*Float the buttons side by side */
+   /* display: block;  /*Stack buttons vertically */
+ }
+
+ .btn-group2 button {
+   background-color: whitesmoke;
+   /* Green background */
+   border: 1px solid green;
+   /* Green border */
+   color: green;
+   /* White text */
+   padding: 10px 24px;
+   /* Some padding */
+   cursor: pointer;
+   /* Pointer/hand icon */
+   /*width:75px;*/
+   float: none;
+   /*Float the buttons side by side */
+   /* display: block;  /*Stack buttons vertically */
+ }
+
+ .btn-image {
+   margin: 0px;
+   padding: 5px;
+ }
+
+ .centerbottom {
+   margin: 5px;
+   position: absolute;
+   bottom: 0%;
+   left: 0;
+   right: 0;
+ }
+
+ /* Clear floats (clearfix hack) */
+ .btn-group:after {
+   content: "";
+   clear: both;
+   display: table;
+ }
+
+ .btn-group button:not(:last-child) {
+   border-right: none;
+   /* Prevent double borders */
+ }
+
+ /* Add a background color on hover */
+ .btn-group button:hover {
+   background-color: #ededed;
+ }
+
+ .flash {
+   animation-name: flash;
+   animation-duration: 0.2s;
+   animation-timing-function: linear;
+   animation-iteration-count: infinite;
+   animation-direction: alternate;
+   animation-play-state: running;
+ }
+
+ @keyframes flash {
+   from {
+     color: darkred
+   }
+
+   to {
+     color: silver;
+   }
+ }
+
+ .loadingnetwork:after {
+   content: ' .';
+   animation: dots 1s steps(1, end) infinite;
+ }
+
+ @keyframes dots {
+
+   0%,
+   12.5% {
+     opacity: 0;
+   }
+
+   25% {
+     opacity: 1;
+   }
+
+   37.5% {
+     text-shadow: .5em 0;
+   }
+
+   50% {
+     text-shadow: .5em 0, 1em 0;
+   }
+
+   87.5%,
+   100% {
+     text-shadow: .5em 0, 1em 0, 1.5em 0, 2em 0, 2.5em;
+   }
+ }
+
+ .fetchingdata:after {
+ 
+  content: ' .';
+  animation: fetchingdatadots 1s steps(1, end) infinite;
+}
+
+@keyframes fetchingdatadots {
+  0%, 12.5% {
+      opacity: 0;
+  }
+  25% {
+      opacity: 1;
+  }
+  37.5% {
+      text-shadow: .5em 0;
+  }
+  50% {
+      text-shadow: .5em 0, 1em 0;
+  }
+  62.5% {
+      text-shadow: .5em 0, 1em 0, 1.5em 0;
+  }
+  75% {
+      text-shadow: .5em 0, 1em 0, 1.5em 0, 2em 0;
+  }
+  87.5%, 100%{
+      text-shadow: .5em 0, 1em 0, 1.5em 0, 2em 0, 2.5em;
+  }
+}	
+
+/*
+*/
+.barloader {
+  display: inline-block;
+  position: relative;
+  margin: auto;
+  width: 64px;
+  height: 64px;
+}
+.barloader div {
+  display: inline-block;
+  position: absolute;
+  margin: auto;
+  left: 6px;
+  width: 13px;
+  
+  animation: barloader 1s cubic-bezier(0, 0.5, 0.5, 1) infinite;
+}
+.barloader div:nth-child(1) {
+  left: 6px;
+  animation-delay: -0.24s;
+  background:green;
+}
+.barloader div:nth-child(2) {
+  left: 26px;
+  animation-delay: -0.12s;
+  background:darkgrey;
+ 
+}
+.barloader div:nth-child(3) {
+  left: 45px;
+  animation-delay: 0;
+  background:navy;
+}
+@keyframes barloader {
+  0% {
+    top: 6px;
+    height: 51px;
+  }
+  50%, 100% {
+    top: 19px;
+    height: 26px;
+  }
+}
+
+.lds-ellipsis {
+  /*display: inline-block;*/
+  margin: 0 auto;
+  position: relative;
+  width: 64px;
+  height: 64px;
+
+}
+.lds-ellipsis div {
+  position: absolute;
+  top: 27px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+.lds-ellipsis div:nth-child(1) {
+  left: 6px;
+  animation: lds-ellipsis1 0.6s infinite;
+  background:green;
+}
+.lds-ellipsis div:nth-child(2) {
+  left: 6px;
+  animation: lds-ellipsis2 0.6s infinite;
+  background:darkgrey;
+}
+.lds-ellipsis div:nth-child(3) {
+  left: 26px;
+  animation: lds-ellipsis2 0.6s infinite;
+  background:navy;
+}
+.lds-ellipsis div:nth-child(4) {
+  left: 45px;
+  animation: lds-ellipsis3 0.6s infinite;
+  background:black
+}
+@keyframes lds-ellipsis1 {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes lds-ellipsis3 {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+@keyframes lds-ellipsis2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(19px, 0);
+  }
+}
+
+
+
+
+.result {
+  margin: 30px auto;
+  margin-top: 0px;
+ /* width: 100%;*/
+  text-align: center;
+  padding: 30px;
+  background-color: #1E1E1E;
+  font-size: 24px;  
+}
+.networkheading{
+  width: auto;
+  top: 0;
+  right: 0;
+  position: absolute;
+  margin: 0;
+  padding: 20px;
+  background-color: #1E1E1E;
+}
+
+ .txnhash {
+   margin: 0 auto;
+   width: 60%;
+   padding: 10px;
+   background-color: #DAF7A6;
+   color: navy;
+ }

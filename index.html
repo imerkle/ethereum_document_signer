@@ -1,0 +1,831 @@
+<html>
+
+<head>
+  <link rel="stylesheet" type="text/css" href="./css/thisstyles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ethereum Document Signer</title>
+
+  <script src="./js/jsfunctions.js" async></script>
+  <script src="./js/contract.js" async></script>
+  <script src="./js/getfilehash.js" async></script>
+  <script type="module">
+    import web3 from './js/web3min.js';
+  </script>
+
+</head>
+
+<body>
+
+  
+
+  <p id="checkweb3" class="container rcorners networkheading" style="font-size:small"></p>
+
+
+  <p id="txnhash" class="rcorners result" style="overflow-wrap: break-word; font-size:small">
+    Txn Hash:  </p>
+
+
+  <div class="container">
+   
+  </div>
+ 
+
+  <div class="container">
+
+    <input id="hashtoregister" class="rcornerswhite" type="text" placeholder='Paste Hash here' value="">
+
+    <input type="file" id="fileElem" style="display:none" onchange="handleFiles(this.files)">
+    <button class='btn' style="display:none" id="fileSelect">Upload File</button>
+
+    <!--
+    <div id="loaderid" class="barloader" style="display: none"></div>-->
+    <div id="loaderid" class="barloader" style="display: none"><div></div><div></div><div></div></div>
+
+
+  </div>
+
+
+  <div class="container">
+    <button class="btn" onclick="getHashDetails()">Get Hash Details</button>
+
+    <br><br>
+
+    <button class="btn" onclick="registerHash()">Register Hash</button>
+
+
+    <!--<button class="btn" onclick="getallhashes()">Get all hashes</button>-->
+
+  </div>
+
+  <!--Loader
+  <div id="loaderid" class="container loader" style="display: none"></div>-->
+
+
+  <pre id="displayresult" class="container rcorners result" style="visibility: hidden;"></pre>
+
+  
+  <div class="container">
+
+    <input id="newowneraddress" class="rcornerswhite" type="text" placeholder="New Owner Address" value="">
+    <br><br>
+
+    <button class="btn" onclick="changeHashOwnership()">Change Hash Ownership </button>
+  </div>
+
+  
+  <div style="display: none;">
+  <div id="helpdiv" class="btn-group container">
+    <!--<button onclick="window.location.href = './eth.html?ll=en'"><img class="btn-image" src='./picture/usa.png' width=21 height=21 border=0></button>-->
+    <button onclick="window.location.href = './faq.html'"><img class="btn-image" src='./picture/help.png' width=21
+        height=21 border=0></button>
+    <!--<button onclick=window.location.href='./faq.html?ll=en'>?</button>-->
+    <button target="_blank" onclick="window.open('https://youtu.be/3PCmGBb1Ce4?vq=hd720')"><img class="btn-image" src='./picture/yt_logo.png' width=84
+      height=21 border=0></button>
+  </div>
+
+  <div id="walletlinks" class="btn-group2 container" style="display: block;">
+    <button target="_blank" onclick="window.open('https://trustwallet.com/dapp')">Trust Wallet</button>
+    <button target="_blank" onclick="window.open('https://wallet.coinbase.com/')">Coinbase</button>
+  </div>
+  </div>
+
+</body>
+
+
+
+
+</html>
+
+<script>
+  //Global Variables  
+  var usenetwork; //"main"; //ropsten
+  var contractinstance;
+  var gasamt = 0;
+  var defaultaccountbalance = 0;
+  var registerhashamount = 0.005;
+  var changehashowneramount = 0.025;
+  var loaderspinner = document.getElementById("loaderid");
+  var fileData;
+  var hashownerscount;
+  var currenthashowner;
+
+  function isMobile()
+{
+  //True if mobile device
+  let ism = (navigator.userAgent.toLowerCase().indexOf("mobile") !== -1 || navigator.userAgent.toLowerCase().indexOf("android") !== -1 || navigator.userAgent.toLowerCase().indexOf("iphone") !== -1);
+  return ism;
+}
+
+if (isMobile())
+{
+  document.getElementById("hashtoregister").style.width = "80%";
+  document.getElementById("newowneraddress").style.width = "80%";
+  document.getElementById("displayresult").style.fontSize = "small";
+}
+
+
+ if (!isMobile())
+ {
+   //document.getElementById("walletlinks").style.display = "block";
+   document.getElementById("fileSelect").style.display = "inline-block";
+   document.getElementById("helpdiv").style.margin = "20px";
+    document.getElementById("walletlinks").style.margin = "20px";
+ }
+
+ function checkweb3()
+{
+  try
+  {
+    if (web3 !== 'undefined' || web3 !== null)
+    {
+      //alert("web3 version: "+ web3.version);
+      return true;
+    } else
+    {
+      return false;
+    }
+  } catch (error)
+  {
+    //alert(error + " catch error");
+    return false;
+  }
+
+} //end checkweb3
+
+
+  window.addEventListener('load', async function ()
+  {
+    if (checkweb3())
+    {
+
+      var netwrk;
+      /*
+      await web3.eth.getNodeInfo().then(
+        function (value)
+        {
+          netwrk = 'Provider: ';
+          netwrk += value.slice(0, value.indexOf("/"));
+        });
+        */
+
+      await web3.eth.net.getNetworkType().then(
+        function (value)
+        {
+          if (value === 'main')
+          {
+            usenetwork = 'main';
+            contractinstance = new web3.eth.Contract(maincontractabi, maincontractaddress);
+
+          } else if (value === 'ropsten')
+          {
+            usenetwork = 'ropsten';
+            contractinstance = new web3.eth.Contract(maincontractabi, maincontractaddress);
+
+          } else
+          {
+            document.getElementById("displayresult").style.visibility = "visible";
+            document.getElementById("displayresult").innerHTML =
+              'Network not supported';
+          }
+          //netwrk += "<br>" + 'Network: ';
+          netwrk = 'Network: ';
+          netwrk += value;
+        });
+
+      document.getElementById("checkweb3").innerHTML = netwrk;
+    }
+
+  });
+
+  if (checkweb3())
+  {
+    //let tmpnet = 'Provider: ' + "<span class='loadingnetwork' style='font-size:20px'></span>";
+    //tmpnet += "<br>" + 'Network: ' +
+    let tmpnet = 'Network: ' +
+      "<span class='loadingnetwork' style='font-size:20px'></span>";
+    document.getElementById("checkweb3").innerHTML = tmpnet;
+  } else
+  {
+    document.getElementById("checkweb3").innerHTML = 'Non Ethereum Browser Deteced.' +
+      "<br> <b>" +
+      'Please install the Metamask Plugin or visit this page in a Web3 enabled browser.' +
+      "<b><br>" +
+      '<a href="https://metamask.io/" target="_blank">Install MetaMask</a>';
+  }
+
+  async function setDefaultAccount()
+  {
+    var account = 0;
+
+    if (checkweb3())
+    {
+      try
+      {
+        //if (window.web3.currentProvider.isMetaMask)
+        if (window.ethereum.isMetaMask)
+        {
+          await window.ethereum.enable().then((account) =>
+          {
+            const defaultAccount = account[0]
+            web3.eth.defaultAccount = defaultAccount
+          }).catch(function (error)
+          {
+            document.getElementById("displayresult").style.visibility = "visible";
+            document.getElementById("displayresult").innerHTML = 'Unable to get accounts';
+          });
+        } else
+        {
+          await web3.eth.getAccounts().then((account) =>
+          {
+            const defaultAccount = account[0]
+            web3.eth.defaultAccount = defaultAccount
+          }).catch(function (error)
+          {
+            document.getElementById("displayresult").style.visibility = "visible";
+            document.getElementById("displayresult").innerHTML = 'Unable to get accounts';
+          });
+        }
+      } catch (error)
+      {
+        document.getElementById("displayresult").style.visibility = "visible";
+        document.getElementById("displayresult").innerHTML = 'Unable to get accounts';
+      }
+    }
+  } //end of setDefaultAccount()
+
+  async function getUserAccountBalance()
+  {
+    try
+    {
+      if (checkweb3())
+      {
+        if (web3.utils.isAddress(web3.eth.defaultAccount))
+        {
+          //console.log("get Balance of Default Account in Gwei & ETH");
+          await web3.eth.getBalance(web3.eth.defaultAccount).then(
+            function (value)
+            {
+              defaultaccountbalance = web3.utils.fromWei(value, 'ether');
+            }
+          ).catch(
+            function (error)
+            {
+              //This promise catch will halt the program.
+              document.getElementById("displayresult").style.visibility = "visible";
+              document.getElementById("displayresult").innerHTML =
+                'Unable to get default account balance';
+              defaultaccountbalance = 0;
+            }
+          );
+        }
+      }
+    } catch (error)
+    {
+      //This will catch the error in the promise and allow code execution
+      document.getElementById("displayresult").style.visibility = "visible";
+      document.getElementById("displayresult").innerHTML =
+        'Unable to get default account balance';
+      defaultaccountbalance = 0;
+    }
+  } //end of getUserAccountBalance()
+
+  async function registerHash()
+  {
+    if (!checkweb3())
+    {
+      return;
+    }
+
+    let sv = verifyHash("hashtoregister");
+
+    if (sv.length === 0)
+    {
+      document.getElementById("displayresult").style.visibility = "visible";
+      document.getElementById("displayresult").innerHTML =
+        'Not a regular Hash Value';
+      return;
+    }
+
+    try
+    {
+
+      document.getElementById("displayresult").style.visibility = "hidden";
+      document.getElementById("displayresult").innerHTML = "";
+
+
+      hashownerscount = 0;
+      await getHashOwnersCount();
+      if (hashownerscount > 0)
+      {
+        document.getElementById("displayresult").style.visibility = "visible";
+        document.getElementById("displayresult").innerHTML = 'Hash Already Registered';
+        return;
+      }
+
+      let netwrk = "";
+      await setDefaultAccount();
+      await web3.eth.net.getNetworkType().then(
+        function (value)
+        {
+          netwrk += 'Network: ';
+          netwrk += value;
+        });
+
+      if (netwrk.indexOf(usenetwork) !== -1)
+      {
+        if (web3.utils.isAddress(web3.eth.defaultAccount))
+        {
+          await getUserAccountBalance();
+          if (defaultaccountbalance > registerhashamount)
+          {
+            //let cnfrstr = netwrk + "\n\n";
+            //cnfrstr+='ETH Account: ' + web3.eth.defaultAccount;
+            //var retval = confirm(cnfrstr + "\n\n"+ 'Do you want to continue?');
+
+            if (true)
+            {
+              gasamt = 0;
+              await estgas(sv);
+              if (gasamt > 0)
+              {
+                document.getElementById("txnhash").innerHTML = 'Txn Hash:';
+                //document.getElementById("displayresult").innerHTML = "";
+                //document.getElementById("displayresult").style.visibility = "hidden";
+
+                await contractinstance.methods.registerHash(sv).send({
+                  from: web3.eth.defaultAccount,
+                  gas: gasamt,
+                  value: web3.utils.toWei((0).toString(), "ether")
+                })
+                  .once('transactionHash', function (hash)
+                  {
+                    if (isMobile())
+                    {
+                      if (usenetwork === 'main')
+                      {
+                        document.getElementById("txnhash").innerHTML =
+                          'Txn Hash:' + "&nbsp" +
+                          "<a href=" + "https://www.etherscan.io/tx/" + hash + " target='_blank'" + ">" +
+                          "Etherscan" + "</a>";
+                      } else
+                      {
+                        document.getElementById("txnhash").innerHTML =
+                          'Txn Hash:' + "&nbsp" +
+                          "<a href=" + "https://" + usenetwork + ".etherscan.io/tx/" + hash +
+                          " target='_blank'" + ">" + "Etherscan" + "</a>";
+                      }
+                    } else
+                    {
+                      if (usenetwork === 'main')
+                      {
+                        document.getElementById("txnhash").innerHTML =
+                          'Txn Hash:' + "&nbsp" +
+                          "<a href=" + "https://www.etherscan.io/tx/" + hash + " target='_blank'" + ">" + hash +
+                          "</a>";
+                      } else
+                      {
+                        document.getElementById("txnhash").innerHTML =
+                          'Txn Hash:' + "&nbsp" +
+                          "<a href=" + "https://" + usenetwork + ".etherscan.io/tx/" + hash +
+                          " target='_blank'" + ">" + hash + "</a>";
+                      }
+                    }
+
+                    document.getElementById("loaderid").style.display = "block";
+
+                  })
+                  .then(function (value)
+                  {
+                    document.getElementById("loaderid").style.display = "none";
+                    document.getElementById("displayresult").style.visibility = "visible";
+                    printRegisterHashEventResult(value);
+                  })
+                  .catch(function (value)
+                  {
+                    document.getElementById("loaderid").style.display = "none";
+                    document.getElementById("displayresult").style.visibility = "visible";
+                    document.getElementById("displayresult").innerHTML = 'Error';
+                    /* +
+                    "<br>"+
+                    '<b>If problem persists, please restart the current browser or try a different browser<b>';*/
+                  });
+              } else
+              {
+                document.getElementById("displayresult").style.visibility = "visible";
+                document.getElementById("displayresult").innerHTML = "Unable to estimate gas";
+              }
+
+
+            } else
+            {
+              document.getElementById("displayresult").style.visibility = "visible";
+              document.getElementById("displayresult").innerHTML =
+                'User cancelled Interaction';
+            }
+          } else
+          {
+            document.getElementById("displayresult").style.visibility = "visible";
+            document.getElementById("displayresult").innerHTML =
+              'The Account Balance should be greater than .005 ETH';
+          }
+        } else
+        {
+          document.getElementById("displayresult").style.visibility = "visible";
+          document.getElementById("displayresult").innerHTML = 'No Ethereum Account found';
+        }
+      } else
+      {
+        document.getElementById("displayresult").style.visibility = "visible";
+        //document.getElementById("displayresult").innerHTML = 'Please switch to main network';
+        document.getElementById("displayresult").innerHTML = 'Error';
+      }
+    } catch (error)
+    {
+      //If transaction Fails
+      document.getElementById("loaderid").style.display = "none";
+      document.getElementById("displayresult").style.visibility = "visible";
+      document.getElementById("displayresult").innerHTML =
+        'The Transaction has failed. Please check the transaction hash to confirm status.' +
+        "<br>" +
+        '<b>Please restart the current browser or try a different browser<b>';
+    }
+
+  } //end of registerHash()
+
+  async function getHashDetails()
+  {
+
+    if (!checkweb3())
+    {
+      return;
+    }
+
+    try
+    {
+      let sv = verifyHash("hashtoregister");
+
+      if (sv.length === 0)
+      {
+        document.getElementById("displayresult").style.visibility = "visible";
+        document.getElementById("displayresult").innerHTML = 'Not a regular Hash Value';
+        return;
+      }
+
+      document.getElementById("displayresult").style.visibility = "visible";
+      document.getElementById("displayresult").innerHTML =
+        "<span class='loadingnetwork' style='font-size:20px'></span>";
+
+      hashownerscount = 0;
+      await getHashOwnersCount();
+      if (hashownerscount > 0)
+      {
+        let cn = hashownerscount - 1;
+        let finalresult = "";
+        document.getElementById("displayresult").style.visibility = "visible";
+        while (cn >= 0)
+        {
+          await contractinstance.methods.getHashDetails(sv, cn).call()
+            .then(function (value)
+            {
+              if (cn == hashownerscount - 1)
+              {
+                finalresult += printhashdetailsstring(value, true);
+              } else
+              {
+                finalresult += printhashdetailsstring(value, false);
+              }
+
+              if (cn > 0)
+              {
+                finalresult += "<br>";
+              }
+              cn--;
+            });
+
+          //document.getElementById("displayresult").innerHTML = finalresult;
+        }
+
+        document.getElementById("displayresult").style.visibility = "visible";
+        document.getElementById("displayresult").innerHTML = finalresult;
+
+      } else
+      {
+        document.getElementById("displayresult").style.visibility = "visible";
+        document.getElementById("displayresult").innerHTML = 'Hash Not Registered';
+      }
+
+    } catch (error)
+    {
+      //alert("gethashdetails error:" + error);
+    }
+  } //gethashdetails()
+
+  async function changeHashOwnership()
+  {
+    if (!checkweb3())
+    {
+      return;
+    }
+
+    let hsh = verifyHash("hashtoregister");
+
+    if (hsh.length === 0)
+    {
+      document.getElementById("displayresult").style.visibility = "visible";
+      document.getElementById("displayresult").innerHTML =
+        'Not a regular Hash Value';
+      return;
+    }
+
+    let nown = document.getElementById("newowneraddress").value;
+
+    if (!nown.startsWith("0x"))
+    {
+      nown = "0x".concat(nown);
+    }
+
+    if (!web3.utils.isAddress(nown))
+    {
+
+      document.getElementById("displayresult").style.visibility = "visible";
+      document.getElementById("displayresult").innerHTML =
+        'New Owner Address not Valid';
+      return;
+    }
+
+    try
+    {
+
+      document.getElementById("displayresult").style.visibility = "hidden";
+      document.getElementById("displayresult").innerHTML = "";
+
+      currenthashowner = "";
+      await getCurrentHashOwner();
+
+      let netwrk = "";
+      await setDefaultAccount();
+
+      if (currenthashowner.toLowerCase().localeCompare(nown.toLowerCase()) === 0)
+      {
+        document.getElementById("displayresult").style.visibility = "visible";
+        document.getElementById("displayresult").innerHTML = 'Current owner and new owner are the same';
+        return;
+      }
+
+      if (currenthashowner.toLowerCase().localeCompare(web3.eth.defaultAccount.toLowerCase()) === 0)
+      {
+
+      }
+      else
+      {
+        document.getElementById("displayresult").style.visibility = "visible";
+        document.getElementById("displayresult").innerHTML = 'Current user does not own this Hash';
+        return;
+      }
+
+      await web3.eth.net.getNetworkType().then(
+        function (value)
+        {
+          netwrk += 'Network: ';
+          netwrk += value;
+        });
+
+      if (netwrk.indexOf(usenetwork) !== -1)
+      {
+        if (web3.utils.isAddress(web3.eth.defaultAccount))
+        {
+          await getUserAccountBalance();
+          if (defaultaccountbalance > changehashowneramount)
+          {
+            //let cnfrstr = netwrk + "\n\n";
+            //cnfrstr+='ETH Account: ' + web3.eth.defaultAccount;
+            //var retval = confirm(cnfrstr + "\n\n"+ 'Do you want to continue?');
+
+            if (true)
+            {
+              gasamt = 0;
+              await estgaschangeownership(hsh, nown);
+
+              if (gasamt > 0)
+              {
+                document.getElementById("txnhash").innerHTML = 'Txn Hash:';
+                //document.getElementById("displayresult").innerHTML = "";
+                //document.getElementById("displayresult").style.visibility = "hidden";
+
+                await contractinstance.methods.changeHashOwnership(hsh, nown).send({
+                  from: web3.eth.defaultAccount,
+                  gas: gasamt,
+                  value: web3.utils.toWei((0).toString(), "ether")
+                })
+                  .once('transactionHash', function (hash)
+                  {
+                    if (isMobile())
+                    {
+                      if (usenetwork === 'main')
+                      {
+                        document.getElementById("txnhash").innerHTML =
+                          'Txn Hash:' + "&nbsp" +
+                          "<a href=" + "https://www.etherscan.io/tx/" + hash + " target='_blank'" + ">" +
+                          "Etherscan" + "</a>";
+                      } else
+                      {
+                        document.getElementById("txnhash").innerHTML =
+                          'Txn Hash:' + "&nbsp" +
+                          "<a href=" + "https://" + usenetwork + ".etherscan.io/tx/" + hash +
+                          " target='_blank'" + ">" + "Etherscan" + "</a>";
+                      }
+                    } else
+                    {
+                      if (usenetwork === 'main')
+                      {
+                        document.getElementById("txnhash").innerHTML =
+                          'Txn Hash:' + "&nbsp" +
+                          "<a href=" + "https://www.etherscan.io/tx/" + hash + " target='_blank'" + ">" + hash +
+                          "</a>";
+                      } else
+                      {
+                        document.getElementById("txnhash").innerHTML =
+                          'Txn Hash:' + "&nbsp" +
+                          "<a href=" + "https://" + usenetwork + ".etherscan.io/tx/" + hash +
+                          " target='_blank'" + ">" + hash + "</a>";
+                      }
+                    }
+
+                    document.getElementById("loaderid").style.display = "block";
+
+                  })
+                  .then(function (value)
+                  {
+                    document.getElementById("loaderid").style.display = "none";
+                    document.getElementById("displayresult").style.visibility = "visible";
+                    printChangeHashOwnershipHashEventResult(value);
+                  })
+                  .catch(function (value)
+                  {
+                    document.getElementById("loaderid").style.display = "none";
+                    document.getElementById("displayresult").style.visibility = "visible";
+                    document.getElementById("displayresult").innerHTML = 'Error';
+                    /* +
+                    "<br>"+
+                    '<b>If problem persists, please restart the current browser or try a different browser<b>';*/
+                  });
+              } else
+              {
+                document.getElementById("displayresult").style.visibility = "visible";
+                document.getElementById("displayresult").innerHTML = 'Unable to estimate gas';
+              }
+
+
+            } else
+            {
+              document.getElementById("displayresult").style.visibility = "visible";
+              document.getElementById("displayresult").innerHTML =
+                'User cancelled Interaction';
+            }
+          } else
+          {
+            document.getElementById("displayresult").style.visibility = "visible";
+            document.getElementById("displayresult").innerHTML =
+              'The Account Balance should be greater than .025 ETH';
+          }
+        } else
+        {
+          document.getElementById("displayresult").style.visibility = "visible";
+          document.getElementById("displayresult").innerHTML = 'No Ethereum Account found';
+        }
+      } else
+      {
+        document.getElementById("displayresult").style.visibility = "visible";
+        //document.getElementById("displayresult").innerHTML = 'Please switch to main network';
+        document.getElementById("displayresult").innerHTML = 'Error';
+      }
+    } catch (error)
+    {
+      //If transaction Fails
+      document.getElementById("loaderid").style.display = "none";
+      document.getElementById("displayresult").style.visibility = "visible";
+      document.getElementById("displayresult").innerHTML =
+        'The Transaction has failed. Please check the transaction hash to confirm status.' +
+        "<br>" +
+        '<b>Please restart the current browser or try a different browser<b>';
+    }
+
+
+  }//end of changeHashOwnership
+
+  function printhashdetailsstring(result, currentownerflag)
+  {
+    /*
+      This function will print key value pairs for the result object
+    */
+    let resultstr = "";
+    if (result !== null && Object.getOwnPropertyNames(result).length > 0)
+    {
+      for (ky in result)
+      {
+        if (result.hasOwnProperty(ky))
+        {
+          if (ky == 0)
+          {
+            if (currentownerflag)
+            {
+              resultstr += 'Current Owner'.concat(": ",result[ky]);
+            } else
+            {
+              resultstr += 'Previous Owner'.concat(": ",result[ky]);
+            }
+          }
+          else if (ky == 1)
+          {
+            resultstr+=" ";
+            resultstr += 'Time'.concat(": ",converttimestamptodate(result[ky]));
+          } 
+         
+        }
+        //resultstr+="<br>";
+      }
+      return resultstr;
+    } else
+    {
+      return 'No Entries';
+    }
+
+  } //end of printhashdetailsstring()    
+
+  function returncurrentowner(result)
+  {
+    /*
+      Return Current Owner from Result Object
+    */
+    let resultstr = "";
+    if (result !== null && Object.getOwnPropertyNames(result).length > 0)
+    {
+      for (ky in result)
+      {
+        if (result.hasOwnProperty(ky))
+        {
+          if (ky == 0)
+          {
+            resultstr = result[ky];
+          }
+
+        }
+        //resultstr+="<br>";
+      }
+      return resultstr;
+    } else
+    {
+      return "";
+    }
+
+  } //end of returncurrentowner()    
+
+ 
+  function printRegisterHashEventResult(result)
+  {
+    /*
+      This function will print key value pairs for the result object
+    */
+    if (result !== null && Object.getOwnPropertyNames(result).length > 0)
+    {
+      if (result.hasOwnProperty("events")) 
+      {
+        let tstamp = Number(result["events"]["RegisterHashEvent"]["returnValues"]["timestamp"]);
+        
+        document.getElementById("displayresult").innerHTML = 'Hash Registered'.concat(": ",converttimestamptodate(tstamp));
+      }
+    }
+    else
+    {
+      document.getElementById("displayresult").innerHTML = 'No result';
+    }
+
+  }//end of printRegisterHashEventResult()
+
+  function printChangeHashOwnershipHashEventResult(result)
+  {
+    /*
+      This function will print key value pairs for the result object
+    */
+    if (result !== null && Object.getOwnPropertyNames(result).length > 0)
+    {
+      if (result.hasOwnProperty("events")) 
+      {
+        let tstamp = Number(result["events"]["ChangeHashOwnershipEvent"]["returnValues"]["timestamp"]);
+      
+        document.getElementById("displayresult").innerHTML = 'Hash Registered'.concat(": ",converttimestamptodate(tstamp));
+      }
+    }
+    else
+    {
+      document.getElementById("displayresult").innerHTML = 'No result';
+    }
+
+  }//end of  printanddisplayresult
+
+
+ 
+
+
+</script>
